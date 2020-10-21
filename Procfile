@@ -1,1 +1,1 @@
-worker:python3 reader.py
+worker: python3 reader.py
