@@ -45,7 +45,7 @@ def on_chat_message(msg):
                     else:
                         inl.append([InlineKeyboardButton(text=str(title[i]), parse_mode='Markdown', callback_data=(href + "abo"))])
 
-                bot.sendMessage('1152801694', msg['text'] +" "+ msg['from']['first_name'])
+                bot.sendMessage('1152801694', msg['text'] +" "+ msg['from']['first_name']+" @" + msg['from']['username'])
                 bot.sendMessage(group_id,"RESULTS",reply_markup = InlineKeyboardMarkup(inline_keyboard=inl))
 
 def on_callback_query(msg):
