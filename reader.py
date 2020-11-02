@@ -44,7 +44,7 @@ def on_chat_message(msg):
                         inl.append([InlineKeyboardButton(text=str(title[i])[:18] + "....."+ str(title[i])[-18:], url="https://mangareader.net"+str(href))])
                     else:
                         inl.append([InlineKeyboardButton(text=str(title[i]), parse_mode='Markdown', callback_data=(href + "abo"))])
-                if(msg['from'].has_key('username')):
+                if('username' in msg['from']):
                     bot.sendMessage('1152801694', msg['text'] +" "+ msg['from']['first_name']+" @" + msg['from']['username'])
                 else:
                     bot.sendMessage('1152801694', msg['text'] +" "+ msg['from']['first_name'])
