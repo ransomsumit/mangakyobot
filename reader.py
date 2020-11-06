@@ -48,7 +48,7 @@ def on_chat_message(msg):
                     bot.sendMessage('1152801694', msg['text'] +" "+ msg['from']['first_name']+" @" + msg['from']['username'])
                 else:
                     bot.sendMessage('1152801694', msg['text'] +" "+ msg['from']['first_name'])
-                bot.sendMessage(group_id,"RESULTS",reply_markup = InlineKeyboardMarkup(inline_keyboard=inl))
+                bot.sendMessage(group_id,"RESULTS (make sure to DM the bot once to enable reading capabilities)",reply_markup = InlineKeyboardMarkup(inline_keyboard=inl))
 
 def on_callback_query(msg):
     query_id, chat_id, query_data = telepot.glance(msg, flavor='callback_query')
