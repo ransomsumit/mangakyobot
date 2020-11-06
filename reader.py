@@ -312,7 +312,12 @@ def on_callback_query(msg):
                 inl.append(InlineKeyboardButton(text = str(ch+1) + " >>", parse_mode='Markdown', callback_data = s[:pos+1] + str(ch+1) + "open"))
         bot.editMessageReplyMarkup(ide, reply_markup=InlineKeyboardMarkup(inline_keyboard=[inl]))
 
-                    
+    elif (query_data == "searchback"):
+        query_id, chat_id, query_data = telepot.glance(msg, flavor='callback_query')
+        if(msg['message']['chat']['type']=='group'):
+            chat_id=msg['message']['chat']['id']
+        ide=(chat_id,msg['message']['message_id'])
+        bot.answerCallbackQuery(query_id, text="Search Again!!!", show_alert = True)
                     
 bot = telepot.Bot(TOKEN)
 MessageLoop(bot, {'chat': on_chat_message,
