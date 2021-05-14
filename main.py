@@ -88,7 +88,9 @@ def manga_reader(message):
         msg_id = int(msg_id.message_id)
         global browser
         options = Options()
-        options.headless = True
+        options.add_argument("--headless")
+        option.add_argument('--disable-gpu')
+        option.add_argument('--no-sandbox')
         binary = FirefoxBinary(os.environ.get("FIREFOX_BIN"))
         req = requests.get(url, headers = {"User-Agent" : "Mozilla/5.0", 'x-requested-with': 'XMLHttpRequest'})
         sou = soup(req.content, "html.parser")
@@ -132,7 +134,9 @@ def manga_total_chap(url):
     if(sou.find("a", {"id":"checkAdult"}) != None):
         global browser
         options = Options()
-        options.headless = True
+        options.add_argument("--headless")
+        option.add_argument('--disable-gpu')
+        option.add_argument('--no-sandbox')
         binary = FirefoxBinary(os.environ.get("FIREFOX_BIN"))
         browser = webdriver.Firefox(options=options, firefox_binary=binary, executable_path=os.environ.get("GECKODRIVER_PATH"))
         browser.get(url)
