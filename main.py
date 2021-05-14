@@ -127,6 +127,7 @@ def manga_reader(message):
             
         
 def manga_total_chap(url):
+    print(url)
     req = requests.get(url, headers = {"User-Agent" : "Mozilla/5.0", 'x-requested-with': 'XMLHttpRequest'})
     sou = soup(req.content, "html.parser")
     if(sou.find("a", {"id":"checkAdult"}) != None):
