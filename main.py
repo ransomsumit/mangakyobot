@@ -127,9 +127,9 @@ def manga_reader(message):
             
         
 def manga_total_chap(url):
-    print(url)
     req = requests.get(url, headers = {"User-Agent" : "Mozilla/5.0", 'x-requested-with': 'XMLHttpRequest'})
     sou = soup(req.content, "html.parser")
+    print(sou)
     if(sou.find("a", {"id":"checkAdult"}) != None):
         chrome_options = webdriver.ChromeOptions()
         chrome_options.binary_location = os.environ.get("CHROME_BIN")
@@ -143,9 +143,6 @@ def manga_total_chap(url):
         sou = soup(req, "html.parser")
         browser.quit()
     sou = sou.find("ul", class_ = "detail-main-list").find_all("li")
-    lis={}
-    for i in range(len(sou)):
-        lis[sou[i].find("p").getText()] = "http://fanfox.net" + sou[i].find("a").attrs['href']
     return len(sou)
 
 
