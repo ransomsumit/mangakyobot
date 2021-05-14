@@ -17,8 +17,7 @@ from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from telebot.types import InputMediaPhoto
 from telebot import types
 from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
+
 
 chilp_it = pyshorteners.Shortener()
 token = os.environ.get("bot_api")
@@ -86,12 +85,11 @@ def manga_reader(message):
         bot.delete_message(chat_id,msg_id)
         msg_id = bot.send_message(chat_id, "Parsing Pages ⌛")
         msg_id = int(msg_id.message_id)
-        global browser
-        options = Options()
-        options.add_argument("--headless")
-        options.add_argument('--disable-gpu')
-        options.add_argument('--no-sandbox')
-        binary = FirefoxBinary(os.environ.get("FIREFOX_BIN"))
+        chrome_options = webdriver.chromeOptions()
+        chrome_options.binary_location = os.environ.get("CHROME_BIN")
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument('--disable-dev-shm-usage')
+        chrome_options.add_argument('--no-sandbox') 
         req = requests.get(url, headers = {"User-Agent" : "Mozilla/5.0", 'x-requested-with': 'XMLHttpRequest'})
         sou = soup(req.content, "html.parser")
         sou = sou.find("div", class_ = "pager-list cp-pager-list").find("span").find_all("a")
@@ -103,7 +101,7 @@ def manga_reader(message):
             ch = random.choice(["Amaterasu","Kagutsuchi","Tsukuyomi","Izanagi","Izanami","Kotoamatsukami","Susanoo","Indra's Yajirushi","Chidori",
                                 "Rasengan","Flying Raijin","REAPER DEATH SEAL","SHINRA TENSEI","KAMUI","TENGAI SHINSEI","AMENOMINAKA"])
             loading("Image Loading Jutsu......\n\nLoading " + ch + " ......" + str(i) + " out of " + str(max_page), chat_id, msg_id)
-            browser = webdriver.Firefox(options=options, firefox_binary=binary, executable_path=os.environ.get("GECKODRIVER_PATH"))
+            browser = webdriver.Chrome(executable_path=os.environ.get("CHROME_PATH"), chrome_options = chrome_options))
             browser.get(url1)
             time.sleep(2)
             req = browser.page_source
@@ -132,13 +130,12 @@ def manga_total_chap(url):
     req = requests.get(url, headers = {"User-Agent" : "Mozilla/5.0", 'x-requested-with': 'XMLHttpRequest'})
     sou = soup(req.content, "html.parser")
     if(sou.find("a", {"id":"checkAdult"}) != None):
-        global browser
-        options = Options()
-        options.add_argument("--headless")
-        options.add_argument('--disable-gpu')
-        options.add_argument('--no-sandbox')
-        binary = FirefoxBinary(os.environ.get("FIREFOX_BIN"))
-        browser = webdriver.Firefox(options=options, firefox_binary=binary, executable_path=os.environ.get("GECKODRIVER_PATH"))
+        chrome_options = webdriver.chromeOptions()
+        chrome_options.binary_location = os.environ.get("CHROME_BIN")
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument('--disable-dev-shm-usage')
+        chrome_options.add_argument('--no-sandbox')
+        browser = webdriver.Chrome(executable_path=os.environ.get("CHROME_PATH"), chrome_options = chrome_options))
         browser.get(url)
         browser.find_element_by_link_text("Please click here to continue reading.").click()
         req = browser.page_source
