@@ -101,7 +101,7 @@ def manga_reader(message):
             ch = random.choice(["Amaterasu","Kagutsuchi","Tsukuyomi","Izanagi","Izanami","Kotoamatsukami","Susanoo","Indra's Yajirushi","Chidori",
                                 "Rasengan","Flying Raijin","REAPER DEATH SEAL","SHINRA TENSEI","KAMUI","TENGAI SHINSEI","AMENOMINAKA"])
             loading("Image Loading Jutsu......\n\nLoading " + ch + " ......" + str(i) + " out of " + str(max_page), chat_id, msg_id)
-            browser = webdriver.Chrome(executable_path=os.environ.get("CHROME_PATH"), chrome_options = chrome_options))
+            browser = webdriver.Chrome(executable_path=os.environ.get("CHROME_PATH"), chrome_options = chrome_options)
             browser.get(url1)
             time.sleep(2)
             req = browser.page_source
@@ -135,7 +135,7 @@ def manga_total_chap(url):
         chrome_options.add_argument("--headless")
         chrome_options.add_argument('--disable-dev-shm-usage')
         chrome_options.add_argument('--no-sandbox')
-        browser = webdriver.Chrome(executable_path=os.environ.get("CHROME_PATH"), chrome_options = chrome_options))
+        browser = webdriver.Chrome(executable_path=os.environ.get("CHROME_PATH"), chrome_options = chrome_options)
         browser.get(url)
         browser.find_element_by_link_text("Please click here to continue reading.").click()
         req = browser.page_source
