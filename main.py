@@ -21,7 +21,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 
 chilp_it = pyshorteners.Shortener()
-token = "1867991747:AAEMxdQE3gWF7JDEWW_uuvlGtSEJokYPQdM"
+token = os.environ.get("bot_api")
 bot = telebot.TeleBot(token)
 
 def extract_text(text):
@@ -36,7 +36,7 @@ def extract_text(text):
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
-    bot.reply_to(message, "Howdy, " + message.from_user.first_name)
+    bot.reply_to(message, "Howdy, " + message.from_user.first_name + ". Welcome to @Mangakyo_Bot. There is only one command '/manga'. \n\nEx. /manga one piece")
 
 
 @bot.message_handler(commands=['manga'])
@@ -89,6 +89,7 @@ def manga_reader(message):
         global browser
         options = Options()
         options.headless = True
+        binary = FirefoxBinary(os.environ.get("FIREFOX_BIN"))
         req = requests.get(url, headers = {"User-Agent" : "Mozilla/5.0", 'x-requested-with': 'XMLHttpRequest'})
         sou = soup(req.content, "html.parser")
         sou = sou.find("div", class_ = "pager-list cp-pager-list").find("span").find_all("a")
@@ -100,7 +101,7 @@ def manga_reader(message):
             ch = random.choice(["Amaterasu","Kagutsuchi","Tsukuyomi","Izanagi","Izanami","Kotoamatsukami","Susanoo","Indra's Yajirushi","Chidori",
                                 "Rasengan","Flying Raijin","REAPER DEATH SEAL","SHINRA TENSEI","KAMUI","TENGAI SHINSEI","AMENOMINAKA"])
             loading("Image Loading Jutsu......\n\nLoading " + ch + " ......" + str(i) + " out of " + str(max_page), chat_id, msg_id)
-            browser = webdriver.Firefox(options=options, executable_path="D:\instabot\instabot\geckodriver.exe")
+            browser = webdriver.Firefox(options=options, firefox_binary=binary, executable_path=os.environ.get("GECKODRIVER_PATH"))
             browser.get(url1)
             time.sleep(2)
             req = browser.page_source
@@ -132,7 +133,8 @@ def manga_total_chap(url):
         global browser
         options = Options()
         options.headless = True
-        browser = webdriver.Firefox(options=options, executable_path="D:\instabot\instabot\geckodriver.exe")
+        binary = FirefoxBinary(os.environ.get("FIREFOX_BIN"))
+        browser = webdriver.Firefox(options=options, firefox_binary=binary, executable_path=os.environ.get("GECKODRIVER_PATH"))
         browser.get(url)
         browser.find_element_by_link_text("Please click here to continue reading.").click()
         req = browser.page_source
