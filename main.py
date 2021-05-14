@@ -53,7 +53,7 @@ def manga_search(message):
                            headers = {"User-Agent" : "Mozilla/5.0", 'x-requested-with': 'XMLHttpRequest'})
         sou = soup(req.content, "html.parser").find("ul", class_="manga-list-4-list line")
         if(sou == None):
-            bot.reply_to(message, "Nothing Found!! Make sure to type the name correct and in japanese")
+            bot.reply_to(message, "Nothing Found!! Make sure to type the name correct. Ask admins if persistent @Ransom_s")
         else:
             sou = sou.find_all("li")
             lis ={}
