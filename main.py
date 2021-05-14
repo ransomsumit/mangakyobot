@@ -16,9 +16,9 @@ from random import randint
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from telebot.types import InputMediaPhoto
 from telebot import types
-from selenium import webdriver
+'''from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
+from selenium.webdriver.firefox.firefox_binary import FirefoxBinary'''
 
 chilp_it = pyshorteners.Shortener()
 token = os.environ.get("bot_api")
