@@ -15,13 +15,11 @@ future==0.18.2
 googleapis-common-protos==1.52.0
 grpcio==1.33.1
 idna==2.10
-instapy==0.6.11
 jsonschema==2.6.0
 MeaningCloud-python==2.0.0
 plyer==1.4.3
 protobuf==3.13.0
 pycparser==2.20
-python-telegram-bot==13.0
 pytz==2020.1
 PyYAML==5.3.1
 regex==2020.10.23
@@ -33,4 +31,3 @@ tornado==6.0.4
 tqdm==4.50.2
 tzlocal==2.1
 urllib3==1.25.11
-webdriverdownloader==1.1.0.3
