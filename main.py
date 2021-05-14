@@ -129,7 +129,6 @@ def manga_reader(message):
 def manga_total_chap(url):
     req = requests.get(url, headers = {"User-Agent" : "Mozilla/5.0", 'x-requested-with': 'XMLHttpRequest'})
     sou = soup(req.content, "html.parser")
-    print(sou)
     if(sou.find("a", {"id":"checkAdult"}) != None):
         chrome_options = webdriver.ChromeOptions()
         chrome_options.binary_location = os.environ.get("CHROME_BIN")
@@ -142,6 +141,7 @@ def manga_total_chap(url):
         req = browser.page_source
         sou = soup(req, "html.parser")
         browser.quit()
+
     sou = sou.find("ul", class_ = "detail-main-list").find_all("li")
     return len(sou)
 
@@ -256,7 +256,10 @@ def query_handler(query):
     else:
         url,typ,cmd = query_extract(query_text)
         if cmd == "ab":
-            manga_about(url,typ,group_id,msgin,clicker,message_id)
+            try:
+                manga_about(url,typ,group_id,msgin,clicker,message_id)
+            except Exception as e:
+                bot.answer_callback_query(query.id, "Error Occured", show_alert = True)
 
 @bot.inline_handler(lambda query: query.query)
 def query_text(inline_query):
