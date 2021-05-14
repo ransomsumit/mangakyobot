@@ -85,7 +85,7 @@ def manga_reader(message):
         bot.delete_message(chat_id,msg_id)
         msg_id = bot.send_message(chat_id, "Parsing Pages ⌛")
         msg_id = int(msg_id.message_id)
-        chrome_options = webdriver.chromeOptions()
+        chrome_options = webdriver.ChromeOptions()
         chrome_options.binary_location = os.environ.get("CHROME_BIN")
         chrome_options.add_argument("--headless")
         chrome_options.add_argument('--disable-dev-shm-usage')
@@ -130,7 +130,7 @@ def manga_total_chap(url):
     req = requests.get(url, headers = {"User-Agent" : "Mozilla/5.0", 'x-requested-with': 'XMLHttpRequest'})
     sou = soup(req.content, "html.parser")
     if(sou.find("a", {"id":"checkAdult"}) != None):
-        chrome_options = webdriver.chromeOptions()
+        chrome_options = webdriver.ChromeOptions()
         chrome_options.binary_location = os.environ.get("CHROME_BIN")
         chrome_options.add_argument("--headless")
         chrome_options.add_argument('--disable-dev-shm-usage')
