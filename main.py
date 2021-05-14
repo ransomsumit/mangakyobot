@@ -90,8 +90,8 @@ def manga_reader(message):
         global browser
         options = Options()
         options.add_argument("--headless")
-        option.add_argument('--disable-gpu')
-        option.add_argument('--no-sandbox')
+        options.add_argument('--disable-gpu')
+        options.add_argument('--no-sandbox')
         binary = FirefoxBinary(os.environ.get("FIREFOX_BIN"))
         req = requests.get(url, headers = {"User-Agent" : "Mozilla/5.0", 'x-requested-with': 'XMLHttpRequest'})
         sou = soup(req.content, "html.parser")
@@ -136,8 +136,8 @@ def manga_total_chap(url):
         global browser
         options = Options()
         options.add_argument("--headless")
-        option.add_argument('--disable-gpu')
-        option.add_argument('--no-sandbox')
+        options.add_argument('--disable-gpu')
+        options.add_argument('--no-sandbox')
         binary = FirefoxBinary(os.environ.get("FIREFOX_BIN"))
         browser = webdriver.Firefox(options=options, firefox_binary=binary, executable_path=os.environ.get("GECKODRIVER_PATH"))
         browser.get(url)
