@@ -4,7 +4,6 @@ import time
 import json
 import math
 import telebot
-import threading
 import requests
 import random
 import pyshorteners
