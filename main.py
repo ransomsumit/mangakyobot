@@ -23,6 +23,12 @@ chilp_it = pyshorteners.Shortener()
 #token = os.environ.get("bot_api")
 token = "1867991747:AAHphYJWpTkxeUaV0D9RhtBveTeMIY_N3dg"
 bot = telebot.TeleBot(token)
+chrome_options = webdriver.ChromeOptions()
+chrome_options.binary_location = os.environ.get("CHROME_BIN")
+chrome_options.add_argument("--headless")
+chrome_options.add_argument('--disable-dev-shm-usage')
+chrome_options.add_argument('--no-sandbox')
+browser = webdriver.Chrome(executable_path=os.environ.get("CHROME_PATH"), chrome_options = chrome_options)
 
 def extract_text(text):
     if text.find('@') != -1:
@@ -86,18 +92,12 @@ def manga_reader(message):
         bot.delete_message(chat_id,msg_id)
         msg_id = bot.send_message(chat_id, "Parsing Pages ⌛")
         msg_id = int(msg_id.message_id)
-        chrome_options = webdriver.ChromeOptions()
-        chrome_options.binary_location = os.environ.get("CHROME_BIN")
-        chrome_options.add_argument("--headless")
-        chrome_options.add_argument('--disable-dev-shm-usage')
-        chrome_options.add_argument('--no-sandbox') 
         req = requests.get(url, headers = {"User-Agent" : "Mozilla/5.0", 'x-requested-with': 'XMLHttpRequest'})
         sou = soup(req.content, "html.parser")
         sou = sou.find("div", class_ = "pager-list cp-pager-list").find("span").find_all("a")
         max_page = int(sou[len(sou)-2].getText())
         loading("Total pages found: " + str(max_page) + "\nImage Scraping Started....", chat_id, msg_id)
         images ={}
-        browser = webdriver.Chrome(executable_path=os.environ.get("CHROME_PATH"), chrome_options = chrome_options)
         for i in range(1,max_page+1):
             url1 = url[:-6] + str(i) + ".html"
             ch = random.choice(["Amaterasu","Kagutsuchi","Tsukuyomi","Izanagi","Izanami","Kotoamatsukami","Susanoo","Indra's Yajirushi","Chidori",
@@ -109,7 +109,6 @@ def manga_reader(message):
             sou = soup(req, "html.parser")
             sou = "http:" + sou.find("img", class_ = "reader-main-img").attrs['src']
             images[i] = sou
-        browser.quit()
         temp = []
         ind = []
         image_list = list(images.keys())
