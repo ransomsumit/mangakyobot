@@ -130,18 +130,10 @@ def manga_total_chap(url):
     req = requests.get(url, headers = {"User-Agent" : "Mozilla/5.0", 'x-requested-with': 'XMLHttpRequest'})
     sou = soup(req.content, "html.parser")
     if(sou.find("a", {"id":"checkAdult"}) != None):
-        chrome_options = webdriver.ChromeOptions()
-        chrome_options.binary_location = os.environ.get("CHROME_BIN")
-        chrome_options.add_argument("--headless")
-        chrome_options.add_argument('--disable-dev-shm-usage')
-        chrome_options.add_argument('--no-sandbox')
-        browser = webdriver.Chrome(executable_path=os.environ.get("CHROME_PATH"), chrome_options = chrome_options)
         browser.get(url)
         browser.find_element_by_link_text("Please click here to continue reading.").click()
         req = browser.page_source
         sou = soup(req, "html.parser")
-        browser.quit()
-
     sou = sou.find("ul", class_ = "detail-main-list").find_all("li")
     return len(sou)
 
