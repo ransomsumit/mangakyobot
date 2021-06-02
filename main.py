@@ -20,7 +20,8 @@ from selenium import webdriver
 
 
 chilp_it = pyshorteners.Shortener()
-token = os.environ.get("bot_api")
+#token = os.environ.get("bot_api")
+token = "1867991747:AAHphYJWpTkxeUaV0D9RhtBveTeMIY_N3dg"
 bot = telebot.TeleBot(token)
 
 def extract_text(text):
@@ -96,19 +97,19 @@ def manga_reader(message):
         max_page = int(sou[len(sou)-2].getText())
         loading("Total pages found: " + str(max_page) + "\nImage Scraping Started....", chat_id, msg_id)
         images ={}
+        browser = webdriver.Chrome(executable_path=os.environ.get("CHROME_PATH"), chrome_options = chrome_options)
         for i in range(1,max_page+1):
             url1 = url[:-6] + str(i) + ".html"
             ch = random.choice(["Amaterasu","Kagutsuchi","Tsukuyomi","Izanagi","Izanami","Kotoamatsukami","Susanoo","Indra's Yajirushi","Chidori",
                                 "Rasengan","Flying Raijin","REAPER DEATH SEAL","SHINRA TENSEI","KAMUI","TENGAI SHINSEI","AMENOMINAKA"])
             loading("Image Loading Jutsu......\n\nLoading " + ch + " ......" + str(i) + " out of " + str(max_page), chat_id, msg_id)
-            browser = webdriver.Chrome(executable_path=os.environ.get("CHROME_PATH"), chrome_options = chrome_options)
             browser.get(url1)
             time.sleep(2)
             req = browser.page_source
             sou = soup(req, "html.parser")
             sou = "http:" + sou.find("img", class_ = "reader-main-img").attrs['src']
             images[i] = sou
-            browser.quit()
+        browser.quit()
         temp = []
         ind = []
         image_list = list(images.keys())
