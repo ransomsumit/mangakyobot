@@ -20,8 +20,8 @@ from telebot import types
 
 
 chilp_it = pyshorteners.Shortener()
-# token = os.environ.get("bot_api")
-token = "1324074534:AAH2WfmQT0M-Iv_H46iO0fz6qVStuvqeLY4"
+token = os.environ.get("bot_api")
+# token = "1324074534:AAH2WfmQT0M-Iv_H46iO0fz6qVStuvqeLY4"
 bot = telebot.TeleBot(token)
 holy = "https://w27.holymanga.net/"
 
