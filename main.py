@@ -240,11 +240,11 @@ def query_handler(query):
 @bot.inline_handler(lambda query: query.query)
 def query_text(inline_query):
     in_query, page = inline_extract(inline_query.query)
-    # try:
-    manga_chap(inline_query.id, in_query.lower(), int(page))
-    # except Exception as e:
-    #     r = types.InlineQueryResultArticle('1', "Make Sure to follow correct syntax, name + pageNo. with a space", types.InputTextMessageContent('Make Sure to follow correct syntax, name + pageNo. with a space \nError: ' + str(e)))
-    #     r2 = types.InlineQueryResultArticle('2', 'Example : one-piece 11', types.InputTextMessageContent('Something went wrong ' + str(e)))
-    #     bot.answer_inline_query(inline_query.id, [r,r2])
+    try:
+        manga_chap(inline_query.id, in_query.lower(), int(page))
+    except Exception as e:
+        r = types.InlineQueryResultArticle('1', "Make Sure to follow correct syntax, name + pageNo. with a space", types.InputTextMessageContent('Make Sure to follow correct syntax, name + pageNo. with a space \nError: ' + str(e)))
+        r2 = types.InlineQueryResultArticle('2', 'Example : one-piece 11', types.InputTextMessageContent('Something went wrong ' + str(e)))
+        bot.answer_inline_query(inline_query.id, [r,r2])
 
 bot.polling(none_stop = True)
