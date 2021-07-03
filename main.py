@@ -20,8 +20,8 @@ from telebot import types
 
 
 chilp_it = pyshorteners.Shortener()
-token = os.environ.get("bot_api")
-# token = "1324074534:AAH2WfmQT0M-Iv_H46iO0fz6qVStuvqeLY4"
+# token = os.environ.get("bot_api")
+token = "1324074534:AAH2WfmQT0M-Iv_H46iO0fz6qVStuvqeLY4"
 bot = telebot.TeleBot(token)
 holy = "https://w27.holymanga.net/"
 
@@ -177,8 +177,11 @@ def foo(url, lis, i):
 
 def count_chapters(url):
     req = requests.get(url, headers = {"User-Agent" : "Mozilla/5.0", 'x-requested-with': 'XMLHttpRequest'})
-    num = soup(req.content, "html.parser").find("div", class_ = "pagination").find_all("a", class_ = "next page-numbers")[1].attrs['href']
-    num = int(num[num.find('page-')+5:])
+    try:
+        num = soup(req.content, "html.parser").find("div", class_ = "pagination").find_all("a", class_ = "next page-numbers")[1].attrs['href']
+        num = int(num[num.find('page-')+5:])
+    except Exception as e:
+        num = 1
     threads = [None] * num
     lis = {}
     for i in range(1,num+1):
@@ -237,11 +240,11 @@ def query_handler(query):
 @bot.inline_handler(lambda query: query.query)
 def query_text(inline_query):
     in_query, page = inline_extract(inline_query.query)
-    try:
-        manga_chap(inline_query.id, in_query.lower(), int(page))
-    except Exception as e:
-        r = types.InlineQueryResultArticle('1', "Make Sure to follow correct syntax, name + pageNo. with a space", types.InputTextMessageContent('Make Sure to follow correct syntax, name + pageNo. with a space \nError: ' + str(e)))
-        r2 = types.InlineQueryResultArticle('2', 'Example : one-piece 11', types.InputTextMessageContent('Something went wrong ' + str(e)))
-        bot.answer_inline_query(inline_query.id, [r,r2])
+    # try:
+    manga_chap(inline_query.id, in_query.lower(), int(page))
+    # except Exception as e:
+    #     r = types.InlineQueryResultArticle('1', "Make Sure to follow correct syntax, name + pageNo. with a space", types.InputTextMessageContent('Make Sure to follow correct syntax, name + pageNo. with a space \nError: ' + str(e)))
+    #     r2 = types.InlineQueryResultArticle('2', 'Example : one-piece 11', types.InputTextMessageContent('Something went wrong ' + str(e)))
+    #     bot.answer_inline_query(inline_query.id, [r,r2])
 
 bot.polling(none_stop = True)
