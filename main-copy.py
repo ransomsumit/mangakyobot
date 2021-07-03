@@ -15,19 +15,36 @@ from bs4 import BeautifulSoup as soup
 from random import randint
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from telebot.types import InputMediaPhoto
-from threading import Thread
 from telebot import types
+from selenium import webdriver
+'''from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.firefox_binary import FirefoxBinary'''
 
 
 chilp_it = pyshorteners.Shortener()
-token = os.environ.get("bot_api")
-# token = "1324074534:AAH2WfmQT0M-Iv_H46iO0fz6qVStuvqeLY4"
+#token = os.environ.get("bot_api")
+token = "1324074534:AAH2WfmQT0M-Iv_H46iO0fz6qVStuvqeLY4"
 bot = telebot.TeleBot(token)
-holy = "https://w27.holymanga.net/"
+
+
+chrome_options = webdriver.ChromeOptions()
+chrome_options.binary_location = os.environ.get("CHROME_BIN")
+chrome_options.add_argument("--headless")
+chrome_options.add_argument('--disable-dev-shm-usage')
+chrome_options.add_argument('--no-sandbox')
+browser = webdriver.Chrome(executable_path=os.environ.get("CHROME_PATH"), chrome_options = chrome_options)
+
+
+
+'''options = Options()
+options.headless = False
+#req = requests.get("https://w11.mangafreak.net/Search/" + str(query), headers = {"User-Agent" : "Mozilla/5.0", 'x-requested-with': 'XMLHttpRequest'})
+browser = webdriver.Firefox(options=options, executable_path="D:\instabot\instabot\geckodriver.exe")'''
+
 
 def extract_text(text):
     if text.find('@') != -1:
-        if(text.find("@mangak") != -1):
+        if(text.find("@manga") != -1):
             text = re.sub("@mangakyo_bot","",text)
             return text.strip()
         else:
@@ -50,19 +67,20 @@ def manga_search(message):
         pass
     else:
         query = re.sub(" ", "+", query_raw.strip())
-        req = requests.get(holy + "?s=" + str(query), headers = {"User-Agent" : "Mozilla/5.0", 'x-requested-with': 'XMLHttpRequest'})
-        sou = soup(req.content, "html.parser").find("div", class_ = "comics-grid").find_all("h3", class_ = "name")
-        if(sou == []):
-            bot.reply_to(message, "Nothing Found!! Make sure to type the name correct or in different keyword. Ask admins if persistent @Ransom_s")
+        req = requests.get("http://fanfox.net/search?title=&genres=&nogenres=&sort=&stype=1&name=" + str(query)
+                           + "&type=0&author_method=cw&author=&artist_method=cw&artist=&rating_method=eq&rating=&released_method=eq&released=&st=0",
+                           headers = {"User-Agent" : "Mozilla/5.0", 'x-requested-with': 'XMLHttpRequest'})
+        sou = soup(req.content, "html.parser").find("ul", class_="manga-list-4-list line")
+        if(sou == None):
+            bot.reply_to(message, "Nothing Found!! Make sure to type the name correct. Ask admins if persistent @Ransom_s")
         else:
+            sou = sou.find_all("li")
             lis ={}
             markup = InlineKeyboardMarkup()
             for i in range(len(sou)):
-                text = sou[i].find("a").getText()
-                if len(text)>40:
-                    text = text[:20] + "...." + text[-20:]
-                url_full = sou[i].find("a").attrs["href"]
-                url = re.sub(holy,'', url_full)
+                text = sou[i].find("p").getText()
+                url_full = "http://fanfox.net" + sou[i].find("a").attrs["href"]
+                url = re.sub('/manga/',"", sou[i].find("a").attrs["href"][:-1])
                 if len(url)>40:
                     url = chilp_it.chilpit.short(url_full) +  "%ab#" + str(message.json['from']['id'])
                 else:
@@ -70,6 +88,8 @@ def manga_search(message):
                 markup.add(InlineKeyboardButton(text, callback_data = url))
             bot.send_message(message.chat.id, "Results: " + query_raw, reply_markup=markup)
 
+def loading(text,chat_id,msg_id):
+    bot.edit_message_text(text,str(chat_id), msg_id) 
 
 @bot.message_handler(commands=['read'])
 def manga_reader(message):
@@ -82,42 +102,72 @@ def manga_reader(message):
         return
     else:
         bot.delete_message(chat_id,msg_id)
+        msg_id = bot.send_message(chat_id, "Parsing Pages ⌛")
+        msg_id = int(msg_id.message_id)
         req = requests.get(url, headers = {"User-Agent" : "Mozilla/5.0", 'x-requested-with': 'XMLHttpRequest'})
-        sou = soup(req.content, "html.parser").find("a", class_ = "bg-tt").getText()
-        markup = InlineKeyboardMarkup()
-        url_quotes = requests.utils.quote(url)
-        markup.add(InlineKeyboardButton("Read Here", url = "https://animebot-play.herokuapp.com/mng/" + url_quotes))
-        bot.send_message(chat_id, sou, parse_mode = "HTML", reply_markup=markup)
-
-
+        sou = soup(req.content, "html.parser")
+        sou = sou.find("div", class_ = "pager-list cp-pager-list").find("span").find_all("a")
+        max_page = int(sou[len(sou)-2].getText())
+        loading("Total pages found: " + str(max_page) + "\nImage Scraping Started....", chat_id, msg_id)
+        images ={}
+        for i in range(1,max_page+1):
+            url1 = url[:-6] + str(i) + ".html"
+            ch = random.choice(["Amaterasu","Kagutsuchi","Tsukuyomi","Izanagi","Izanami","Kotoamatsukami","Susanoo","Indra's Yajirushi","Chidori",
+                                "Rasengan","Flying Raijin","REAPER DEATH SEAL","SHINRA TENSEI","KAMUI","TENGAI SHINSEI","AMENOMINAKA"])
+            loading("Image Loading Jutsu......\n\nLoading " + ch + " ......" + str(i) + " out of " + str(max_page), chat_id, msg_id)
+            browser.get(url1)
+            time.sleep(2)
+            req = browser.page_source
+            sou = soup(req, "html.parser")
+            sou = "http:" + sou.find("img", class_ = "reader-main-img").attrs['src']
+            images[i] = sou
+        temp = []
+        ind = []
+        image_list = list(images.keys())
+        for i in range(len(image_list)):
+            if(i%10 == 0 and i!=0):
+                ind.append(temp)
+                temp=[]
+            temp.append(InputMediaPhoto(media = images[image_list[i]], caption = image_list[i]))
+        if(len(temp) !=0):
+            ind.append(temp)
+            temp=[]
+        bot.delete_message(chat_id,msg_id)
+        for i in ind:
+            bot.send_media_group(chat_id, i)
+            
+            
+        
 def manga_total_chap(url):
     req = requests.get(url, headers = {"User-Agent" : "Mozilla/5.0", 'x-requested-with': 'XMLHttpRequest'})
-    sou = soup(req.content, "html.parser").find("div", class_ = "bg-white well")
-    about = sou.find("div", class_ = "new-chap").getText().strip()
-    num = int(re.findall(r'\d+', about)[0])
-    return num
+    sou = soup(req.content, "html.parser")
+    if(sou.find("a", {"id":"checkAdult"}) != None):
+        browser.get(url)
+        browser.find_element_by_link_text("Please click here to continue reading.").click()
+        req = browser.page_source
+        sou = soup(req, "html.parser")
+    sou = sou.find("ul", class_ = "detail-main-list").find_all("li")
+    return len(sou)
 
 
 def manga_about(urlMain,typ,chat_id,msgin,clicker,message_id):
     bot.delete_message(chat_id,message_id)
     if typ == '@':
-        url = holy + urlMain
+        url = "http://fanfox.net/manga/" + urlMain
     elif typ == '%':
         url = chilp_it.chilpit.expand(urlMain)
-        urlMain = re.sub(holy,"",url)
-        urlMain = re.sub("/","", urlMain)
+        urlMain = re.sub("http://fanfox.net/manga/","",url[:-1])
     req = requests.get(url, headers = {"User-Agent" : "Mozilla/5.0", 'x-requested-with': 'XMLHttpRequest'})
-    sou = soup(req.content, "html.parser").find("div", class_ = "bg-white well")
-    img = sou.find("div", class_="thumb text-center").find("img").attrs['src']
-    info = sou.find("div", class_ = "info")
-    about = "<b>" + info.find("h1", class_="name bigger").getText() + "</b>\n"
-    about += "<b>Rating: </b>" + info.find("div", class_ = "counter").getText() + "\n\n"
-    about += "<b>" + info.find("div", class_ = "author").getText().strip().replace("\n","") + "</b>\n\n"
-    about += "<b>" + info.find("div", class_ = "genre").getText().strip().replace("\n","") + "</b>\n\n"
-    about += "<b>" + info.find("div", class_ = "new-chap").getText().strip() + "</b>\n"
+    sou = soup(req.content, "html.parser")
+    img = sou.find("div", class_ = "detail-info-cover").find("img").attrs['src']
+    abo = sou.find("div", class_ = "detail-info-right").find_all("p")
+    about = "<b>" + abo[0].getText().strip() + "</b>\n\n"
+    about = about + "<b>" + abo[1].getText().strip() + "</b>\n\n"
+    about = about + "<b>Genre:<i> " + abo[2].getText().strip() + "</i></b>\n\n"
     total_chap = manga_total_chap(url)
+    about = about + "<b>Total Chapters Found: </b>" + "<i>" + str(total_chap) + "</i>\n"
     about = about + "<pre>Approx " + str(math.ceil(total_chap/50)) + " pages of 50 results made</pre>\n\n"
-    about += "<code>" + sou.find("div", class_ = "comic-description").find("p").getText() + "</code>"
+    about = about + '<code>' + abo[3].getText().strip()+ "</code>\n"
 
     try:
         url_white = "https://i.imgur.com/R1yA2Ik.jpeg"
@@ -156,50 +206,34 @@ def manga_about(urlMain,typ,chat_id,msgin,clicker,message_id):
     except Exception as e:
         bot.send_message(chat_id, about, parse_mode = "HTML", reply_markup=markup)
         print("Oops!", e.__class__, "occurred.")
-
+    
 def inline_extract(text):
     lis = text.split()
     if(len(lis) == 1):
         return lis[0],1
     return lis[0],lis[1]
 
-def foo(url, lis, i):
-    u = url + "/page-" + str(i) + "/"
-    req = requests.get(u, headers = {"User-Agent" : "Mozilla/5.0", 'x-requested-with': 'XMLHttpRequest'})
-    sou = soup(req.content, "html.parser").find_all("h2", class_ = "chap")
-    temp = {}
-    for j in sou:
-        temp[j.find("a").getText()]= j.find("a").attrs['href']
-    lis[i] =  temp
-
-def count_chapters(url):
-    req = requests.get(url, headers = {"User-Agent" : "Mozilla/5.0", 'x-requested-with': 'XMLHttpRequest'})
-    num = soup(req.content, "html.parser").find("div", class_ = "pagination").find_all("a", class_ = "next page-numbers")[1].attrs['href']
-    num = int(num[num.find('page-')+5:])
-    threads = [None] * num
-    lis = {}
-    for i in range(1,num+1):
-        threads[i-1] = Thread(target=foo, args=(url, lis, i))
-        threads[i-1].start()
-    for i in range(len(threads)):
-        threads[i].join()
-    temp = {}
-    for i in range(1,len(lis)+1):
-        temp = {**temp, **lis[i]}
-    return temp
-
 def manga_chap(in_id,name,page):
-    url = holy + name
-    lis = count_chapters(url)
+    url = "http://fanfox.net/manga/" + name
+    req = requests.get(url, headers = {"User-Agent" : "Mozilla/5.0", 'x-requested-with': 'XMLHttpRequest'})
+    sou = soup(req.content, "html.parser")
+    if(sou.find("a", {"id":"checkAdult"}) != None):
+        r = [types.InlineQueryResultArticle(1, "18+ Content, Click Here and Read on Website", types.InputTextMessageContent(url))]
+        bot.answer_inline_query(in_id, r)
+        return 0
+    sou = sou.find("ul", class_ = "detail-main-list").find_all("li")
+    lis={}
+    for i in range(len(sou)):
+        lis[sou[i].find("p").getText()] = "http://fanfox.net" + sou[i].find("a").attrs['href']
     chapters_name = list(lis.keys())
     total = len(chapters_name)
     r = []
     if total>50*page:
         for i in range(50*(page-1),50*page):
-            r.append(types.InlineQueryResultArticle(i+1, chapters_name[i][:20] + "..." + chapters_name[i][-20:], types.InputTextMessageContent('/read ' + lis[chapters_name[i]])))
+            r.append(types.InlineQueryResultArticle(i+1, chapters_name[i], types.InputTextMessageContent('/read ' + lis[chapters_name[i]])))
     elif (total>50*(page-1) and 50*page>total):
         for i in range(50*(page-1),total):
-            r.append(types.InlineQueryResultArticle(i+1, chapters_name[i][:20] + "..." + chapters_name[i][-20:], types.InputTextMessageContent('/read ' + lis[chapters_name[i]])))
+            r.append(types.InlineQueryResultArticle(i+1, chapters_name[i], types.InputTextMessageContent('/read ' + lis[chapters_name[i]])))
     elif total<50*(page-1):
         r.append(types.InlineQueryResultArticle(1, "Page out of range", types.InputTextMessageContent("oops!! Wrong page")))
     bot.answer_inline_query(in_id, r)
@@ -237,8 +271,8 @@ def query_text(inline_query):
     try:
         manga_chap(inline_query.id, in_query.lower(), int(page))
     except Exception as e:
-        r = types.InlineQueryResultArticle('1', "Make Sure to follow correct syntax, name + pageNo. with a space", types.InputTextMessageContent('Make Sure to follow correct syntax, name + pageNo. with a space \nError: ' + str(e)))
-        r2 = types.InlineQueryResultArticle('2', 'Example : one-piece 11', types.InputTextMessageContent('Something went wrong ' + str(e)))
+        r = types.InlineQueryResultArticle('1', "Make Sure to follow correct syntax, name + pageNo. with a space", types.InputTextMessageContent('Something went wrong ' + str(e)))
+        r2 = types.InlineQueryResultArticle('2', 'Example : one_piece 11', types.InputTextMessageContent('Something went wrong ' + str(e)))
         bot.answer_inline_query(inline_query.id, [r,r2])
 
 bot.polling(none_stop = True)
