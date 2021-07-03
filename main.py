@@ -117,7 +117,10 @@ def manga_about(urlMain,typ,chat_id,msgin,clicker,message_id):
     about += "<b>" + info.find("div", class_ = "new-chap").getText().strip() + "</b>\n"
     total_chap = manga_total_chap(url)
     about = about + "<pre>Approx " + str(math.ceil(total_chap/50)) + " pages of 50 results made</pre>\n\n"
-    about += "<code>" + sou.find("div", class_ = "comic-description").find("p").getText() + "</code>"
+    try:
+        about += "<code>" + sou.find("div", class_ = "comic-description").find("p").getText() + "</code>"
+    except Exception as e:
+        about += "<code>" + sou.find("div", class_ = "comic-description").getText() + "</code>"
 
     try:
         url_white = "https://i.imgur.com/R1yA2Ik.jpeg"
